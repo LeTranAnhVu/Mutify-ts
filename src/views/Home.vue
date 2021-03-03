@@ -1,18 +1,40 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
-  </div>
+  <ul v-if="tracks.length">
+    <li v-for="track in tracks" :key="track.id" @click="changeTrack(track)">
+      <p>{{ track.name }}</p>
+    </li>
+  </ul>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+import { Track } from "@/types/Track";
+import { TrackActions, TrackMutations } from "@/store/track-store";
 
 export default defineComponent({
   name: "Home",
-  components: {
-    HelloWorld
+
+  computed: {
+    genres(): string[] {
+      return this.$store.getters.getGenres;
+    },
+
+    tracks(): Track[] {
+      console.log("get call here");
+      return this.$store.getters.getTracks || [];
+    }
+  },
+  methods: {
+    changeTrack(track: Track) {
+      console.log("call");
+      this.$store.commit(TrackMutations.UPSERT_CURRENT_TRACK, track);
+    }
+  },
+
+  async mounted() {
+    await this.$store.dispatch(TrackActions.Fetch);
   }
 });
 </script>
+
+<style scoped></style>
